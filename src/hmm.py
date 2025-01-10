@@ -14,9 +14,23 @@ import time
 print("Starting HMM SP500 analysis...")
 
 # Get the current date and set start and end for today's trading day
-today = datetime.now()
+today = datetime.now() 
+yesterday = today - timedelta(days=1)
+
 start_date = today.replace(hour=0, minute=0, second=0, microsecond=0)  # Beginning of today
 end_date = today.replace(hour=23, minute=59, second=59, microsecond=999999)  # End of today
+
+try:
+    # Attempt to download today's data
+    sp500 = yf.download("^GSPC", start=start_date, end=end_date, interval="1m")
+    if sp500.empty:
+        raise ValueError("No data found for today.")
+except Exception as e:
+    print(f"Failed to download today's data: {e}")
+    # Use yesterday's data if today's data download fails
+    start_date = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)  # Beginning of yesterday
+    end_date = yesterday.replace(hour=23, minute=59, second=59, microsecond=999999)  # End of yesterday
+    sp500 = yf.download("^GSPC", start=start_date, end=end_date, interval="1m")
 
 # Download S&P 500 data
 sp500 = yf.download("^GSPC", start = start_date, end=  end_date, interval = "1m")
